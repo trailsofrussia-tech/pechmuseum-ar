@@ -1,0 +1,71 @@
+/* Graphite exhibition theme. Model textures and historical photographs are unchanged. */
+:root { color-scheme: dark; }
+body {
+  --canvas: #1b1d21;
+  --surface: #282c32;
+  --surface-raised: #30353d;
+  --text: #f1f2f4;
+  --muted: #b4bbc5;
+  --line: #424852;
+  --control-line: #737d8b;
+  --rust: #dce2e9;
+  --ink: var(--text);
+  background: var(--canvas);
+  color: var(--text);
+}
+button:focus-visible, a:focus-visible, summary:focus-visible,
+.zone-mobile select:focus-visible { outline-color: #dce4ef; }
+.brand img { filter: grayscale(1) brightness(1.35); }
+.skip { background: #eef0f3; color: #1b1d21; }
+.edition i { background: #b5beca; }
+.scene-description, .learning-card p, .learning-card .scheme-note,
+.source-gallery figcaption, .bibliography, dialog > p,
+.empty-zone > p:not(.eyebrow) { color: var(--muted); }
+.primary { background: #dce2e9; color: #191c21; }
+.secondary { border-color: var(--control-line); color: var(--text); }
+.play-icon, .scene-picker { background: #343941; color: #e3e8ee; }
+.scene-picker { border-color: var(--line); }
+.scene-picker button[aria-pressed=true] { background: #505864; color: #fff; box-shadow: none; }
+.scene-picker button span { color: #bcc4cf; }
+.viewer-panel { background: #2b3037; border: 1px solid #484f59; }
+.viewer-panel:before { background: radial-gradient(ellipse at 40% 35%, #434b5638, transparent 68%); }
+.viewer-index { color: #a4aebd26; }
+.viewer-chip, .viewer-bottom p, .viewer-bottom p span,
+.scale-label, .model-caption p, .model-loading { color: #c2c9d2; }
+.viewer-chip span { border-color: #aab5c3; }
+.icon-button { background: #343b45; border-color: #798594; color: #ecf0f5; }
+.scale-label { border-color: #737d8b; }
+.model-caption { background: #252a31; border-color: #4a525e; }
+.model-caption > span { color: #e0e5ec; }
+.viewer-error { background: #292e35; border-color: #737d8b; }
+.reference-large button, .source-gallery img { background: #272c33; }
+.route-mark { border-color: #737d8b; color: #d3dbe7; }
+dialog { background: #252a31; color: var(--text); border-color: #737d8b; box-shadow: 0 24px 80px #0008; }
+dialog::backdrop { background: #080a0dc2; }
+.notice, .smoke-diagram { background: #323943; }
+.notice { border-left-color: #aebaca; color: #d5dce5; }
+.smoke-step > span, .smoke-arrow { color: #d9e2ed; }
+.smoke-step small { color: #bbc5d2; }
+.smoke-step { opacity: .65; }
+.nfc-item img { background: #fff; border-color: #7d8794; }
+.toast { background: #e4e9ef; color: #1b1d21; box-shadow: 0 8px 25px #0005; }
+.zone-links a { border-color: #64707f; }
+.zone-links a span { color: #b8c2cf; }
+.zone-links a[aria-current=page] { background: #4e5968; border-color: #a9b6c7; color: #fff; }
+.zone-links a[aria-current=page] span { color: #e0e7f0; }
+.zone-mobile { color: #c1c9d4; }
+.zone-mobile select { background: #2a3038; border-color: #7a8696; color: #f1f3f6; font-size: 16px; }
+.empty-canvas { background: #252b32; border-color: #737f8f; color: #b8c2cf; }
+body.pech-embedded dialog[open] {
+  top: var(--embed-dialog-top, 50%); bottom: auto; margin: 0 auto;
+  transform: translateY(-50%); max-height: var(--embed-dialog-max-height, 88dvh);
+}
+body.pech-embedded .toast {
+  top: var(--embed-toast-top, 90%); bottom: auto; transform: translate(-50%, -100%);
+}
+@media (hover:hover) and (pointer:fine) {
+  .primary:hover { background: #fff; color: #14171b; }
+  .secondary:hover, .icon-button:hover { background: #424b58; color: #fff; }
+  .zone-links a:hover { background: #343d49; }
+  .text-link:hover { color: #fff; }
+}
