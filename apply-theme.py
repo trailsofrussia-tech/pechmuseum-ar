@@ -16,6 +16,7 @@ for html in site.rglob('index.html'):
     prefix = './' if html.parent == site else '../'
     text = html.read_text()
     text = text.replace('class="story" aria-labelledby="scene-title"', 'class="story"')
+    text = re.sub(r'(<section class="story"[^>]*>.*?</section>)(\s*)(<section class="viewer-panel"[^>]*>.*?</section>)', r'\3\2\1', text, flags=re.S)
     text = re.sub(r'(<script type="module" src="[^"]*app\.js)(?:\?[^"]*)?("></script>)', rf'\1?v={revision}\2', text)
     text = re.sub(r'<link rel="stylesheet" href="[^"]*graphite\.css[^\"]*">\s*', '', text)
     text = re.sub(r'<script defer src="[^"]*embed-bridge\.js[^\"]*"></script>\s*', '', text)
