@@ -24,6 +24,7 @@ jobs:
           cat museum-ar.zip.part-* > "$RUNNER_TEMP/museum-ar.zip"
           unzip -q "$RUNNER_TEMP/museum-ar.zip" -d "$RUNNER_TEMP/museum-ar"
           test -s "$RUNNER_TEMP/museum-ar/site/index.html"
+          python3 apply-theme.py "$RUNNER_TEMP/museum-ar/site" "$GITHUB_SHA"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
