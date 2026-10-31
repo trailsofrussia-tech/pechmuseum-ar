@@ -8,9 +8,15 @@ site = Path(sys.argv[1])
 revision = sys.argv[2]
 shutil.copyfile('graphite.css', site / 'graphite.css')
 shutil.copyfile('embed-bridge.js', site / 'embed-bridge.js')
+app = site / 'app.js'
+code = app.read_text()
+code = code.replace("$('viewer-badge').textContent=s.badge;", "$('viewer-badge').textContent=id==='kamenka'?'Жилище пещерного человека':zone.title;")
+app.write_text(code)
 for html in site.rglob('index.html'):
     prefix = './' if html.parent == site else '../'
     text = html.read_text()
+    text = text.replace('class="story" aria-labelledby="scene-title"', 'class="story"')
+    text = re.sub(r'(<script type="module" src="[^"]*app\.js)(?:\?[^"]*)?("></script>)', rf'\1?v={revision}\2', text)
     text = re.sub(r'<link rel="stylesheet" href="[^"]*graphite\.css[^\"]*">\s*', '', text)
     text = re.sub(r'<script defer src="[^"]*embed-bridge\.js[^\"]*"></script>\s*', '', text)
     text = text.replace('<meta name="theme-color" content="#f4f0e8">', '<meta name="theme-color" content="#1b1d21">')
