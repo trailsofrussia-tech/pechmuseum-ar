@@ -3,11 +3,11 @@ const APP_BASE=new URL('.',import.meta.url);
 const localURL=p=>new URL(p.replace(/^\//,''),APP_BASE).href;
 import {ZONES} from './zones.js';
 import {SCENES} from './scene-data.js';
-import {createBurzhuykaChooser,getBurzhuykaModel} from './burzhuyka-collection.js?v=collection-20261103';
+import {createCollectionChoosers,getCollectionModel} from './burzhuyka-collection.js?v=collection-20261108';
 const $=id=>document.getElementById(id),ref=file=>localURL('assets/references/'+file);
 const viewer=$('viewer'),reduce=matchMedia('(prefers-reduced-motion: reduce)');
 let current='kamenka',evidenceType='confirmed',raf=0,toastTimer=0,loadTimer=0,tutorialStarted=0,modelReady=false,viewerDefinition,activeModel=null,loadSequence=0;
-const collectionChooser=createBurzhuykaChooser(model=>selectScene('burzhuyka',true,model));
+const collectionChooser=createCollectionChoosers((zone,model)=>selectScene(zone,true,model));
 const getZone=id=>ZONES.find(z=>z.id===id),zonePath=id=>new URL(id+'/',APP_BASE).pathname;
 function routeZone(){const q=new URL(location.href).searchParams.get('scene'),p=location.pathname.slice(APP_BASE.pathname.length).split('/').filter(Boolean)[0];return getZone(q)?q:getZone(p)?p:'kamenka';}
 function showDialog(id){$(id).showModal();}
@@ -23,7 +23,7 @@ function openPhoto(src,caption){$('photo-full').src=src;$('photo-full').alt=capt
 function stopAnimation(){cancelAnimationFrame(raf);$('smoke-diagram').hidden=true;$('smoke-diagram').classList.remove('running');if(typeof viewer.pause==='function'){viewer.pause();viewer.currentTime=0;}$('timeline').hidden=true;$('progress').value=0;$('play').setAttribute('aria-pressed','false');$('play-label').textContent=reduce.matches?'Показать схему без движения':'Показать, как работает';}
 async function selectScene(id,writeURL=true,requestedModel){
  const zone=getZone(id)||ZONES[0];id=zone.id;const sequence=++loadSequence;stopAnimation();clearTimeout(loadTimer);current=id;modelReady=false;
- const variant=id==='burzhuyka'?getBurzhuykaModel(requestedModel??(!writeURL?new URL(location.href).searchParams.get('model'):null)):null;
+ const variant=getCollectionModel(id,requestedModel??(!writeURL?new URL(location.href).searchParams.get('model'):null));
  if(writeURL){const url=new URL(zonePath(id),location.origin);if(variant&&variant.id!=='interior')url.searchParams.set('model',variant.id);history.pushState({scene:id,model:variant?.id},'',url.pathname+url.search);}
  syncNavigation(zone);collectionChooser.sync(id,variant);
  const s=SCENES[id],hasModel=Boolean(s?.model);$('empty-zone').hidden=hasModel;for(const key of ['experience','evidence','sources-nav','route-banner'])$(key).hidden=!hasModel;
@@ -40,7 +40,7 @@ async function selectScene(id,writeURL=true,requestedModel){
  if(hasDiagram){const steps=$('smoke-diagram').querySelectorAll('.smoke-step');s.diagram.forEach(([title,detail],i)=>{steps[i].querySelector('strong').textContent=title;steps[i].querySelector('small').textContent=detail;});$('smoke-diagram').setAttribute('aria-label','Условная схема: '+s.diagram.map(x=>x.join(' — ')).join('; '));}
  if(hasSources){$('source-gallery').replaceChildren(...s.photos.map(([file,caption])=>{const f=document.createElement('figure'),b=document.createElement('button'),img=document.createElement('img'),cap=document.createElement('figcaption');b.type='button';b.setAttribute('aria-label','Открыть: '+caption);img.src=ref(file);img.alt=caption;img.loading='lazy';cap.textContent=caption;b.append(img);b.addEventListener('click',()=>openPhoto(ref(file),caption));f.append(b,cap);return f;}));
  $('bibliography').replaceChildren(...s.bibliography.map(([name,url])=>{const p=document.createElement('p'),a=document.createElement('a');a.href=url;a.textContent=name;a.target='_blank';a.rel='noopener';p.append(a);return p;}));evidenceType='confirmed';renderEvidence();}$('viewer-error').hidden=true;$('play').disabled=true;$('loading-label').textContent='Готовим 3D-модель…';
- try{if(!customElements.get('model-viewer'))await(viewerDefinition??=import('./vendor/model-viewer.min.js'));if(sequence!==loadSequence)return;viewer.cameraOrbit=selection.orbit;viewer.cameraTarget=selection.target;viewer.alt=selection.alt;viewer.setAttribute('aria-label',selection.alt);viewer.removeAttribute('loaded');viewer.removeAttribute('ios-src');viewer.setAttribute('ar-scale',variant&&variant.id!=='interior'?'fixed':'auto');viewer.setAttribute('min-camera-orbit','auto 25deg '+(variant&&variant.id!=='interior'?'auto':'2.4m'));viewer.setAttribute('max-camera-orbit','auto 87deg '+(variant&&variant.id!=='interior'?'auto':'8m')); // Quick Look exports a correctly typed USDZ Blob.
+ try{if(!customElements.get('model-viewer'))await(viewerDefinition??=import('./vendor/model-viewer.min.js'));if(sequence!==loadSequence)return;viewer.cameraOrbit=selection.orbit;viewer.cameraTarget=selection.target;viewer.alt=selection.alt;viewer.setAttribute('aria-label',selection.alt);viewer.removeAttribute('loaded');viewer.removeAttribute('ios-src');viewer.setAttribute('ar-scale',variant?.scaleStatus==='estimated'?'fixed':'auto');viewer.setAttribute('min-camera-orbit','auto 25deg '+(variant&&variant.id!=='interior'?'auto':'2.4m'));viewer.setAttribute('max-camera-orbit','auto 87deg '+(variant&&variant.id!=='interior'?'auto':'8m')); // Quick Look exports a correctly typed USDZ Blob.
  viewer.src=localURL(selection.model);loadTimer=setTimeout(()=>{if(!modelReady&&sequence===loadSequence)$('loading-label').textContent='Загрузка продолжается. Проверьте соединение с интернетом.';},30000);}catch{if(sequence===loadSequence)$('viewer-error').hidden=false;}
 }
 function finishAnimation(){cancelAnimationFrame(raf);$('progress').value=12;$('stage').textContent='Пояснение завершено. Движение и время показаны условно.';$('play').setAttribute('aria-pressed','false');$('play-label').textContent='Посмотреть ещё раз';$('smoke-diagram').classList.remove('running');$('smoke-diagram').dataset.phase='3';}

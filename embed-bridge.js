@@ -7,7 +7,7 @@
     scheduled = false;
     const height = Math.max(400, Math.ceil(document.body.getBoundingClientRect().height));
     const scene = document.querySelector('#zone-select')?.value || 'kamenka';
-    const model = scene === 'burzhuyka' ? document.querySelector('#viewer')?.dataset : {};
+    const model = document.querySelector('#viewer')?.dataset;
     const details = {modelId:model?.collectionModel || '',modelTitle:model?.modelTitle || '',modelDescription:model?.modelDescription || '',scaleNote:model?.scaleNote || ''};
     const key = JSON.stringify({height,scene,...details});
     if (key === lastKey) return;

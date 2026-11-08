@@ -9,28 +9,107 @@ export const BURZHUYKA_COLLECTION = [
   {id:'tin-can',heightCM:22,scaleStatus:'estimated',scaleNote:'Ориентировочная высота — 22 см. Точные обмеры пока не заданы.',title:'Печь из жестяной банки',model:'/assets/burzhuyka-collection/burzhuyka-tin-can-v1.glb',description:'Небольшая печь из ребристых металлических банок. Сбоку находится загрузочный канал, с другой стороны — ручка, сверху — опоры для посуды.'}
 ];
 
+const UGOL_PECHNIKA_COLLECTION = [
+  {
+    id: 'interior',
+    title: 'Кирпичная печь: разрез и внешний вид',
+    model: '/assets/ugol-pechnika-mobile-v1.glb',
+    orbit: '0deg 75deg 7.3m',
+    target: '0m 1.1m 0m',
+    description: 'Две модели кирпичной печи рядом: разрез слева и внешний вид справа.',
+  },
+  {
+    id: 'damper',
+    orbit: '45deg 40deg auto',
+    title: 'Печная задвижка',
+    model: '/assets/ugol-pechnika-collection/ugol-pechnika-damper-v1.glb',
+    description: 'Задвижка с выдвижной пластиной, которая перекрывает дымовой канал.',
+  },
+  {
+    id: 'wooden-mold',
+    orbit: '25deg 53deg auto',
+    title: 'Деревянная формовочная коробка',
+    model: '/assets/ugol-pechnika-collection/ugol-pechnika-wooden-mold-v1.glb',
+    description: 'Деревянная коробка для формования заготовки.',
+  },
+  {
+    id: 'metal-stamp',
+    orbit: '5deg 75deg auto',
+    title: 'Металлический штамп',
+    model: '/assets/ugol-pechnika-collection/ugol-pechnika-metal-stamp-v1.glb',
+    description: 'Металлический штамп для получения оттиска.',
+  },
+];
+
+const collections = {
+  burzhuyka: {
+    models: BURZHUYKA_COLLECTION,
+    label: 'Печь в коллекции',
+    accessibleName: 'Коллекция буржуек',
+  },
+  'ugol-pechnika': {
+    models: UGOL_PECHNIKA_COLLECTION,
+    label: 'Экспонат',
+    accessibleName: 'Экспонаты угла печника',
+  },
+};
+
+export function getCollectionModel(zone, id) {
+  const collection = collections[zone];
+  if (!collection) return null;
+  return collection.models.find(model => model.id === id) ?? collection.models[0];
+}
+
+export function createCollectionChoosers(onChange, zones = Object.keys(collections)) {
+  const choosers = zones.map(zone => {
+    const collection = collections[zone];
+    const section = document.createElement('section');
+    section.id = zone + '-collection';
+    section.className = 'collection-switcher';
+    section.hidden = true;
+    section.setAttribute('aria-label', collection.accessibleName);
+
+    const label = document.createElement('label');
+    const select = document.createElement('select');
+    const note = document.createElement('p');
+    select.id = zone + '-model-select';
+    label.htmlFor = select.id;
+    label.textContent = collection.label;
+    note.id = zone + '-scale-note';
+    note.className = 'collection-scale-note';
+    select.setAttribute('aria-describedby', note.id);
+
+    for (const [index, model] of collection.models.entries()) {
+      const option = document.createElement('option');
+      option.value = model.id;
+      option.textContent = String(index + 1).padStart(2, '0') + ' · ' + model.title;
+      select.append(option);
+    }
+
+    select.addEventListener('change', () => onChange(zone, select.value));
+    section.append(label, select, note);
+    document.querySelector('.zone-navigation').after(section);
+    return { zone, section, select, note };
+  });
+
+  return {
+    sync(zone, model) {
+      for (const chooser of choosers) {
+        chooser.section.hidden = chooser.zone !== zone;
+        if (chooser.section.hidden) continue;
+        chooser.select.value = model.id;
+        chooser.note.textContent = model.scaleNote ?? '';
+        chooser.note.hidden = !model.scaleNote;
+      }
+    },
+  };
+}
+
+// Old app bundles may still be cached by visitors of the published site.
 export function getBurzhuykaModel(id) {
-  return BURZHUYKA_COLLECTION.find(model=>model.id===id) || BURZHUYKA_COLLECTION[0];
+  return getCollectionModel('burzhuyka', id);
 }
 
 export function createBurzhuykaChooser(onChange) {
-  const section=document.createElement('section');
-  section.id='burzhuyka-collection';section.className='collection-switcher';section.hidden=true;
-  section.setAttribute('aria-label','Коллекция буржуек');
-  const label=document.createElement('label');label.htmlFor='burzhuyka-model-select';label.textContent='Печь в коллекции';
-  const select=document.createElement('select');select.id='burzhuyka-model-select';select.setAttribute('aria-describedby','burzhuyka-scale-note');
-  for(const [index,model] of BURZHUYKA_COLLECTION.entries()){
-    const option=document.createElement('option');option.value=model.id;option.textContent=String(index+1).padStart(2,'0')+' · '+model.title;select.append(option);
-  }
-  const note=document.createElement('p');note.id='burzhuyka-scale-note';note.className='collection-scale-note';
-  select.addEventListener('change',()=>onChange(select.value));
-  section.append(label,select,note);
-  document.querySelector('.zone-navigation').after(section);
-  return {sync(zone,model){
-    section.hidden=zone!=='burzhuyka';
-    if(section.hidden)return;
-    select.value=model.id;
-    note.textContent=model.id==='interior'?'':(model.scaleNote || 'Физические размеры пока не заданы');
-    note.hidden=!note.textContent;
-  }};
+  return createCollectionChoosers((_, id) => onChange(id), ['burzhuyka']);
 }
