@@ -8,7 +8,7 @@ site = Path(sys.argv[1])
 revision = sys.argv[2]
 shutil.copyfile('graphite.css', site / 'graphite.css')
 shutil.copyfile('embed-bridge.js', site / 'embed-bridge.js')
-for name in ('app.js', 'burzhuyka-collection.js'):
+for name in ('app.js', 'burzhuyka-collection.js', 'exhibit-hotspots.js'):
     if Path(name).exists():
         shutil.copyfile(name, site / name)
 for zone in ('burzhuyka', 'ugol-pechnika'):
@@ -19,6 +19,7 @@ for zone in ('burzhuyka', 'ugol-pechnika'):
 app = site / 'app.js'
 code = app.read_text()
 code = re.sub(r"(from './burzhuyka-collection\.js)(?:\?[^']*)?(')", rf'\1?v={revision}\2', code)
+code = re.sub(r"(from './exhibit-hotspots\.js)(?:\?[^']*)?(')", rf'\1?v={revision}\2', code)
 code = code.replace("$('viewer-badge').textContent=s.badge;", "$('viewer-badge').textContent=id==='kamenka'?'Жилище пещерного человека':zone.title;")
 app.write_text(code)
 for html in site.rglob('index.html'):

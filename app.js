@@ -4,9 +4,11 @@ const localURL=p=>new URL(p.replace(/^\//,''),APP_BASE).href;
 import {ZONES} from './zones.js';
 import {SCENES} from './scene-data.js';
 import {createCollectionChoosers,getCollectionModel} from './burzhuyka-collection.js?v=collection-20261108';
+import {createExhibitHotspots} from './exhibit-hotspots.js?v=hotspots-20261113';
 const $=id=>document.getElementById(id),ref=file=>localURL('assets/references/'+file);
 const viewer=$('viewer'),reduce=matchMedia('(prefers-reduced-motion: reduce)');
 let current='kamenka',evidenceType='confirmed',raf=0,toastTimer=0,loadTimer=0,tutorialStarted=0,modelReady=false,viewerDefinition,activeModel=null,loadSequence=0;
+const exhibitHotspots=createExhibitHotspots(viewer);
 const collectionChooser=createCollectionChoosers((zone,model)=>selectScene(zone,true,model));
 const getZone=id=>ZONES.find(z=>z.id===id),zonePath=id=>new URL(id+'/',APP_BASE).pathname;
 function routeZone(){const q=new URL(location.href).searchParams.get('scene'),p=location.pathname.slice(APP_BASE.pathname.length).split('/').filter(Boolean)[0];return getZone(q)?q:getZone(p)?p:'kamenka';}
@@ -22,7 +24,7 @@ function renderEvidence(){const s=SCENES[current];if(!s?.evidence)return;$('evid
 function openPhoto(src,caption){$('photo-full').src=src;$('photo-full').alt=caption;$('photo-caption').textContent=caption;showDialog('photo-dialog');}
 function stopAnimation(){cancelAnimationFrame(raf);$('smoke-diagram').hidden=true;$('smoke-diagram').classList.remove('running');if(typeof viewer.pause==='function'){viewer.pause();viewer.currentTime=0;}$('timeline').hidden=true;$('progress').value=0;$('play').setAttribute('aria-pressed','false');$('play-label').textContent=reduce.matches?'Показать схему без движения':'Показать, как работает';}
 async function selectScene(id,writeURL=true,requestedModel){
- const zone=getZone(id)||ZONES[0];id=zone.id;const sequence=++loadSequence;stopAnimation();clearTimeout(loadTimer);current=id;modelReady=false;
+ const zone=getZone(id)||ZONES[0];id=zone.id;const sequence=++loadSequence;stopAnimation();clearTimeout(loadTimer);current=id;modelReady=false;exhibitHotspots.reset();
  const variant=getCollectionModel(id,requestedModel??(!writeURL?new URL(location.href).searchParams.get('model'):null));
  if(writeURL){const url=new URL(zonePath(id),location.origin);if(variant&&variant.id!=='interior')url.searchParams.set('model',variant.id);history.pushState({scene:id,model:variant?.id},'',url.pathname+url.search);}
  syncNavigation(zone);collectionChooser.sync(id,variant);
@@ -56,9 +58,9 @@ window.addEventListener('popstate',()=>selectScene(routeZone(),false));
 $('next-scene').addEventListener('click',()=>{const i=ZONES.findIndex(z=>z.id===current);selectScene(ZONES[(i+1)%ZONES.length].id);$('main').scrollIntoView({behavior:'instant'});});
 $('reset-camera').addEventListener('click',()=>{const s=activeModel;if(s&&typeof viewer.jumpCameraToGoal==='function'){viewer.cameraOrbit=s.orbit;viewer.cameraTarget=s.target;viewer.jumpCameraToGoal();}});
 $('retry').addEventListener('click',()=>{viewer.removeAttribute('src');selectScene(current,false,viewer.dataset.collectionModel);});
-viewer.addEventListener('load',()=>{if(!SCENES[current])return;modelReady=true;clearTimeout(loadTimer);viewer.setAttribute('loaded','');$('viewer-error').hidden=true;$('play').disabled=false;viewer.pause();viewer.currentTime=0;$('load-progress').value=1;});
+viewer.addEventListener('load',()=>{if(!SCENES[current])return;modelReady=true;clearTimeout(loadTimer);viewer.setAttribute('loaded','');$('viewer-error').hidden=true;$('play').disabled=false;viewer.pause();viewer.currentTime=0;$('load-progress').value=1;exhibitHotspots.show(current,viewer.dataset.collectionModel);});
 viewer.addEventListener('progress',e=>{$('load-progress').value=e.detail.totalProgress;$('loading-label').textContent='Загрузка 3D · '+Math.round(e.detail.totalProgress*100)+'%';});
-viewer.addEventListener('error',()=>{if(!SCENES[current])return;modelReady=false;clearTimeout(loadTimer);$('viewer-error').hidden=false;$('play').disabled=true;});
+viewer.addEventListener('error',()=>{if(!SCENES[current])return;modelReady=false;exhibitHotspots.reset();clearTimeout(loadTimer);$('viewer-error').hidden=false;$('play').disabled=true;});
 viewer.addEventListener('ar-status',e=>{if(e.detail.status==='failed')showDialog('ar-fallback');});
 $('ar-launch').addEventListener('click',async()=>{if(!modelReady){toast('3D-модель ещё загружается. Попробуйте через несколько секунд.');return;}stopAnimation();if(viewer.canActivateAR){try{await viewer.activateAR();}catch{showDialog('ar-fallback');}}else showDialog('ar-fallback');});
 $('play').addEventListener('click',()=>{if($('play').getAttribute('aria-pressed')==='true'){stopAnimation();return;}$('smoke-diagram').hidden=false;$('timeline').hidden=false;$('stage').dataset.phase='';$('play').setAttribute('aria-pressed','true');if(reduce.matches){$('smoke-diagram').dataset.phase='3';$('progress').value=7;$('stage').textContent='Статичная условная схема. '+SCENES[current].stages[2];$('play-label').textContent='Скрыть схему';return;}tutorialStarted=performance.now();$('smoke-diagram').classList.add('running');$('play-label').textContent='Остановить пояснение';updateTimeline();});
