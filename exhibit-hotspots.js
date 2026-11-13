@@ -479,7 +479,8 @@ export function createExhibitHotspots(viewer) {
   document.addEventListener('keydown', onEscape);
   document.addEventListener('pointerdown', event => {
     if (selected === -1 || !(event.target instanceof Element)) return;
-    if (card.contains(event.target) || event.target.closest('.exhibit-hotspot')) return;
+    // The toggle closes the card in its own click handler.
+    if (card.contains(event.target) || toggle.contains(event.target) || event.target.closest('.exhibit-hotspot')) return;
     dismiss();
   });
   viewer.addEventListener('camera-change', schedulePosition);
@@ -518,6 +519,8 @@ export function createExhibitHotspots(viewer) {
         pin.setAttribute('aria-label', 'Точка ' + (index + 1) + ': ' + item.title);
         pin.setAttribute('aria-controls', card.id);
         pin.setAttribute('aria-expanded', 'false');
+        // Annotation taps must not start a camera drag or retain pointer capture.
+        pin.addEventListener('pointerdown', event => event.stopPropagation());
         pin.addEventListener('click', () => open(index, pin));
         entries.push({ item, pin }); pins.push(pin);
         viewer.append(pin);
