@@ -1,4 +1,5 @@
 export const ZONES = [
+  { id: 'archive-fire', title: 'Архив огня', number: '0.0', hasModel: false },
   { id: 'kamenka', title: 'Каменка', number: '01', hasModel: true },
   { id: 'glinobitnaya', title: 'Глинобитная', number: '02', hasModel: true },
   { id: 'kurnaya', title: 'Курная', number: '03', hasModel: true },

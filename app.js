@@ -28,13 +28,17 @@ const PERIODS={
  'burzhuyka/rocket':['Бытование типа','С 1980-х гг.']
 };
 function syncPeriod(zone,model){
+ if(zone==='archive-fire')return;
  const key=zone+'/'+(model?.id||'default');
  const [kind,date]=PERIODS[key]||(zone==='burzhuyka'&&model?.id!=='interior'?['Вариация','Современный быт']:PERIODS[zone]);
  const caption=document.createElement('small'),value=document.createElement('span');
  caption.textContent=kind;value.textContent=date;periodBadge.replaceChildren(caption,value);
  periodBadge.setAttribute('aria-label',kind+': '+date);
 }
-const audioGuide=createExhibitAudio(localURL('assets/audio/kamenka-audioguide-v1.m4a'));
+const audioGuide=createExhibitAudio({
+ 'archive-fire':localURL('assets/audio/archive-fire-audioguide-v1.m4a'),
+ kamenka:localURL('assets/audio/kamenka-audioguide-v2.m4a')
+});
 let zoneMenuButton,zoneMenu;
 const getZone=id=>ZONES.find(z=>z.id===id),zonePath=id=>new URL(id+'/',APP_BASE).pathname;
 function routeZone(){const q=new URL(location.href).searchParams.get('scene'),p=location.pathname.slice(APP_BASE.pathname.length).split('/').filter(Boolean)[0];return getZone(q)?q:getZone(p)?p:'kamenka';}
@@ -68,7 +72,9 @@ async function selectScene(id,writeURL=true,requestedModel){
  const variant=getCollectionModel(id,requestedModel??(!writeURL?new URL(location.href).searchParams.get('model'):null));
  if(writeURL){const url=new URL(zonePath(id),location.origin);if(variant&&variant.id!=='interior')url.searchParams.set('model',variant.id);history.pushState({scene:id,model:variant?.id},'',url.pathname+url.search);}
  syncNavigation(zone);collectionChooser.sync(id,variant);syncPeriod(id,variant);audioGuide.sync(id);
- const s=SCENES[id],hasModel=Boolean(s?.model);$('empty-zone').hidden=hasModel;for(const key of ['experience','evidence','sources-nav','route-banner'])$(key).hidden=!hasModel;
+ const s=SCENES[id],hasModel=Boolean(s?.model),audioOnly=id==='archive-fire';
+ document.body.classList.toggle('archive-mode',audioOnly);
+ $('empty-zone').hidden=hasModel||audioOnly;for(const key of ['experience','evidence','sources-nav','route-banner'])$(key).hidden=key==='experience'?!(hasModel||audioOnly):!hasModel;
  const next=ZONES[(ZONES.findIndex(z=>z.id===id)+1)%ZONES.length];$('next-scene').textContent='Далее: '+next.title;
  if(!hasModel){activeModel=null;viewer.removeAttribute('src');delete viewer.dataset.collectionModel;delete viewer.dataset.modelTitle;delete viewer.dataset.modelDescription;delete viewer.dataset.scaleNote;$('empty-zone-index').textContent=zone.number+' / Раздел выставки';$('empty-zone-title').textContent=zone.title;window.dispatchEvent(new Event('pech-model-change'));return;}
  activeModel=variant?{...s,...variant,orbit:variant.orbit||'28deg 66deg auto',target:variant.target||'auto auto auto',alt:variant.title}:s;

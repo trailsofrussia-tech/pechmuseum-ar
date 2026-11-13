@@ -13,8 +13,9 @@ for name in ('app.js', 'burzhuyka-collection.js', 'exhibit-hotspots.js', 'exhibi
         shutil.copyfile(name, site / name)
 audio = site / 'assets' / 'audio'
 audio.mkdir(parents=True, exist_ok=True)
-for recording in Path('.').glob('kamenka-audioguide-v*.m4a'):
-    shutil.copyfile(recording, audio / recording.name)
+for pattern in ('kamenka-audioguide-v*.m4a', 'archive-fire-audioguide-v*.m4a'):
+    for recording in Path('.').glob(pattern):
+        shutil.copyfile(recording, audio / recording.name)
 for zone in ('burzhuyka', 'ugol-pechnika', 'belaya'):
     collection = site / 'assets' / f'{zone}-collection'
     collection.mkdir(parents=True, exist_ok=True)
@@ -28,9 +29,13 @@ for module in ('zones', 'scene-data', 'exhibit-audio'):
     code = re.sub(r"(from './" + module + r"\.js)(?:\?[^']*)?(')", rf'\1?v={revision}\2', code)
 code = code.replace("$('viewer-badge').textContent=s.badge;", "$('viewer-badge').textContent=id==='kamenka'?'Жилище пещерного человека':zone.title;")
 app.write_text(code)
+archive = site / 'archive-fire'
+archive.mkdir(parents=True, exist_ok=True)
+archive.joinpath('index.html').write_text(site.joinpath('kamenka/index.html').read_text().replace('<title>Каменка · Живая печь</title>', '<title>Архив огня · Живая печь</title>'))
 for html in site.rglob('index.html'):
     prefix = './' if html.parent == site else '../'
     text = html.read_text()
+    text = text.replace('aria-label="Семь разделов выставки"', 'aria-label="Разделы выставки"')
     text = text.replace('class="story" aria-labelledby="scene-title"', 'class="story"')
     text = re.sub(r'(<section class="story"[^>]*>.*?</section>)(\s*)(<section class="viewer-panel"[^>]*>.*?</section>)', r'\3\2\1', text, flags=re.S)
     text = re.sub(r'(<script type="module" src="[^"]*app\.js)(?:\?[^"]*)?("></script>)', rf'\1?v={revision}\2', text)
