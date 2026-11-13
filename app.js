@@ -5,6 +5,7 @@ import {ZONES} from './zones.js';
 import {SCENES} from './scene-data.js';
 import {createCollectionChoosers,getCollectionModel} from './burzhuyka-collection.js?v=collection-20261108';
 import {createExhibitHotspots} from './exhibit-hotspots.js?v=hotspots-20261113';
+import {createExhibitAudio} from './exhibit-audio.js';
 const $=id=>document.getElementById(id),ref=file=>localURL('assets/references/'+file);
 const viewer=$('viewer'),reduce=matchMedia('(prefers-reduced-motion: reduce)');
 let current='kamenka',evidenceType='confirmed',raf=0,toastTimer=0,loadTimer=0,tutorialStarted=0,modelReady=false,viewerDefinition,activeModel=null,loadSequence=0;
@@ -33,18 +34,7 @@ function syncPeriod(zone,model){
  caption.textContent=kind;value.textContent=date;periodBadge.replaceChildren(caption,value);
  periodBadge.setAttribute('aria-label',kind+': '+date);
 }
-const audioPreview=document.createElement('div');
-audioPreview.className='audio-preview';
-const audioButton=document.createElement('button');
-audioButton.type='button';audioButton.className='button secondary audio-preview-button';
-audioButton.setAttribute('aria-disabled','true');audioButton.setAttribute('aria-describedby','audio-preview-status');
-const audioIcon=document.createElementNS('http://www.w3.org/2000/svg','svg');
-audioIcon.setAttribute('viewBox','0 0 24 24');audioIcon.setAttribute('aria-hidden','true');
-const audioPath=document.createElementNS('http://www.w3.org/2000/svg','path');audioPath.setAttribute('d','m9 5 11 7-11 7V5Z');audioIcon.append(audioPath);
-audioButton.append(audioIcon,document.createTextNode('Прослушать фрагмент записи'));
-const audioStatus=document.createElement('p');audioStatus.id='audio-preview-status';audioStatus.setAttribute('role','status');audioStatus.textContent='Аудиофрагмент готовится';
-audioButton.addEventListener('click',()=>toast('Аудиофрагмент готовится. Запись появится здесь.'));
-audioPreview.append(audioButton,audioStatus);$('experience').append(audioPreview);
+const audioGuide=createExhibitAudio(localURL('assets/audio/kamenka-audioguide-v1.m4a'));
 let zoneMenuButton,zoneMenu;
 const getZone=id=>ZONES.find(z=>z.id===id),zonePath=id=>new URL(id+'/',APP_BASE).pathname;
 function routeZone(){const q=new URL(location.href).searchParams.get('scene'),p=location.pathname.slice(APP_BASE.pathname.length).split('/').filter(Boolean)[0];return getZone(q)?q:getZone(p)?p:'kamenka';}
@@ -77,7 +67,7 @@ async function selectScene(id,writeURL=true,requestedModel){
  const zone=getZone(id)||ZONES[0];id=zone.id;const sequence=++loadSequence;stopAnimation();clearTimeout(loadTimer);current=id;modelReady=false;exhibitHotspots.reset();
  const variant=getCollectionModel(id,requestedModel??(!writeURL?new URL(location.href).searchParams.get('model'):null));
  if(writeURL){const url=new URL(zonePath(id),location.origin);if(variant&&variant.id!=='interior')url.searchParams.set('model',variant.id);history.pushState({scene:id,model:variant?.id},'',url.pathname+url.search);}
- syncNavigation(zone);collectionChooser.sync(id,variant);syncPeriod(id,variant);
+ syncNavigation(zone);collectionChooser.sync(id,variant);syncPeriod(id,variant);audioGuide.sync(id);
  const s=SCENES[id],hasModel=Boolean(s?.model);$('empty-zone').hidden=hasModel;for(const key of ['experience','evidence','sources-nav','route-banner'])$(key).hidden=!hasModel;
  const next=ZONES[(ZONES.findIndex(z=>z.id===id)+1)%ZONES.length];$('next-scene').textContent='Далее: '+next.title;
  if(!hasModel){activeModel=null;viewer.removeAttribute('src');delete viewer.dataset.collectionModel;delete viewer.dataset.modelTitle;delete viewer.dataset.modelDescription;delete viewer.dataset.scaleNote;$('empty-zone-index').textContent=zone.number+' / Раздел выставки';$('empty-zone-title').textContent=zone.title;window.dispatchEvent(new Event('pech-model-change'));return;}

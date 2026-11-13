@@ -240,6 +240,11 @@ button:focus-visible, a:focus-visible, .zone-mobile select:focus-visible { outli
 .audio-preview-button { display:flex; align-items:center; justify-content:center; gap:10px; min-height:52px; }
 .audio-preview-button svg { width:20px; height:20px; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.5; }
 .audio-preview p { margin:0; color:var(--muted); font:10px/1.6 var(--mono); }
+.audio-track-controls { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; width:min(100%,420px); }
+.audio-track-controls[hidden] { display:none!important; }
+.audio-track-seek { display:block; width:100%; min-width:0; height:44px; margin:0; padding:0; accent-color:var(--sepia-bright); cursor:pointer; touch-action:pan-y; }
+.audio-track-seek:focus-visible { outline:2px solid var(--sepia-bright); outline-offset:3px; }
+.audio-track-clock { color:var(--muted); font:10px/1.5 var(--mono); white-space:nowrap; font-variant-numeric:tabular-nums; }
 .zone-menu-trigger { position:relative; display:flex; width:100%; min-height:52px; margin-top:8px; padding:13px 38px 13px 16px; text-align:left; border:1px solid var(--sepia-line); border-radius:0; color:var(--text); background:#232326; font:15px/1.5 var(--mono); letter-spacing:0; touch-action:manipulation; }
 .zone-menu { width:min(440px,calc(100vw - 28px)); box-sizing:border-box; max-height:88dvh; padding:20px; overflow:auto; overscroll-behavior:contain; background-color:#202124; background-image:linear-gradient(#cfaf8708 1px,transparent 1px),linear-gradient(90deg,#cfaf8708 1px,transparent 1px); background-size:24px 24px; }
 .zone-menu-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
