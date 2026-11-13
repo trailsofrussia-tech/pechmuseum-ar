@@ -1,4 +1,16 @@
 /* Graphite exhibition theme. Model textures and historical photographs are unchanged. */
+.glinobitnaya-collection { padding:12px 0 28px; border-top:1px solid var(--sepia-line); }
+.glinobitnaya-collection[hidden] { display:none!important; }
+.glina-collection-heading { margin:0 0 22px; }
+.glina-collection-heading > span { color:var(--sepia); font:10px/1.5 var(--mono); letter-spacing:.08em; }
+.glina-collection-heading h2 { margin:8px 0 0; color:var(--text); font:400 clamp(24px,4vw,34px)/1.25 Georgia,serif; }
+.glina-model-label { display:block; margin-bottom:8px; color:var(--muted); font:12px/1.5 var(--mono); }
+.glina-model-select { display:block; width:100%; min-height:52px; margin:0 0 16px; padding:12px; border:1px solid var(--sepia-line); border-radius:0; color:var(--text); background:#232326; font:16px/1.5 var(--mono); }
+.glina-viewer-panel { position:relative; }
+.glina-load-status { min-height:1.5em; margin:10px 0 16px; color:var(--muted); font:11px/1.5 var(--mono); overflow-wrap:anywhere; }
+.glina-ar { width:100%; }
+.glinobitnaya-collection button:disabled { opacity:.45; cursor:wait; }
+.glina-model-select:focus-visible { outline:2px solid var(--sepia-bright); outline-offset:3px; }
 :root { color-scheme: dark; }
 body {
   --canvas: #1b1d21;
