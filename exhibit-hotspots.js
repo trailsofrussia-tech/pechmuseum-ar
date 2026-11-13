@@ -71,22 +71,31 @@ export function createExhibitHotspots(viewer) {
   card.id = 'exhibit-note-card';
   card.className = 'exhibit-note-card';
   card.hidden = true;
+  card.tabIndex = -1;
+  card.setAttribute('role', 'dialog');
+  card.setAttribute('aria-modal', 'false');
+  card.setAttribute('aria-labelledby', 'exhibit-note-title');
+  card.setAttribute('aria-describedby', 'exhibit-note-body');
   const content = document.createElement('div');
   content.className = 'exhibit-note-content';
-  content.setAttribute('aria-live', 'polite');
-  content.setAttribute('aria-atomic', 'true');
   const close = document.createElement('button');
   close.type = 'button';
   close.className = 'exhibit-note-close';
   close.setAttribute('aria-label', 'Закрыть пояснение');
   close.textContent = '×';
-  card.append(content, close);
-  section.append(hint, choices, card);
+  card.append(close, content);
+  section.append(hint, choices);
   viewer.closest('.viewer-panel').after(section);
+  // A body-level overlay escapes the 3D canvas clipping without moving the page.
+  document.body.append(card);
   let pins = [], entries = [], selected = -1, returnFocus = null;
+  let layoutFrame = 0, embeddedViewport = null;
+  const clamp = (value, min, max) => Math.min(Math.max(value, min), Math.max(min, max));
 
   function dismiss(restoreFocus = false) {
     card.hidden = true;
+    cancelAnimationFrame(layoutFrame);
+    layoutFrame = 0;
     selected = -1;
     for (const { pin, choice } of entries) {
       pin.setAttribute('aria-expanded', 'false');
@@ -95,14 +104,52 @@ export function createExhibitHotspots(viewer) {
     if (restoreFocus && returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
   }
 
+  function positionCard() {
+    layoutFrame = 0;
+    if (selected === -1 || card.hidden) return;
+    const pin = entries[selected]?.pin;
+    if (!pin?.isConnected) { dismiss(); return; }
+    const panel = viewer.closest('.viewer-panel').getBoundingClientRect();
+    const anchor = pin.getBoundingClientRect();
+    const left = Math.max(12, panel.left + 12);
+    const right = Math.min(innerWidth - 12, panel.right - 12);
+    const top = Math.max(12, (embeddedViewport?.start ?? 0) + 12);
+    const bottom = Math.min(innerHeight - 12, (embeddedViewport?.end ?? innerHeight) - 12);
+    if (right - left < 100 || bottom - top < 100) { dismiss(); return; }
+    card.style.width = Math.min(360, right - left) + 'px';
+    card.style.maxHeight = Math.min(460, bottom - top) + 'px';
+    const { width, height } = card.getBoundingClientRect();
+    const centerX = anchor.left + anchor.width / 2;
+    const centerY = anchor.top + anchor.height / 2;
+    let x, y;
+    if (anchor.right + 14 + width <= right) {
+      x = anchor.right + 14; y = centerY - 30;
+    } else if (anchor.left - 14 - width >= left) {
+      x = anchor.left - 14 - width; y = centerY - 30;
+    } else {
+      x = centerX - width / 2;
+      const above = anchor.top - top, below = bottom - anchor.bottom;
+      y = above >= height + 14 || above > below ? anchor.top - height - 14 : anchor.bottom + 14;
+    }
+    card.style.left = clamp(x, left, right - width) + 'px';
+    card.style.top = clamp(y, top, bottom - height) + 'px';
+    card.style.visibility = 'visible';
+  }
+
+  function schedulePosition() {
+    if (selected !== -1 && !layoutFrame) layoutFrame = requestAnimationFrame(positionCard);
+  }
+
   function open(index, trigger) {
     if (selected === index) { dismiss(); return; }
     const item = entries[index].item;
     returnFocus = trigger;
     selected = index;
     const title = document.createElement('h2');
+    title.id = 'exhibit-note-title';
     title.textContent = String(index + 1).padStart(2, '0') + ' / ' + item.title;
     const body = document.createElement('p');
+    body.id = 'exhibit-note-body';
     body.textContent = item.body;
     content.replaceChildren(title, body);
     if (item.source) {
@@ -118,8 +165,11 @@ export function createExhibitHotspots(viewer) {
       pin.setAttribute('aria-expanded', String(i === index));
       choice.setAttribute('aria-expanded', String(i === index));
     }
+    card.style.visibility = 'hidden';
     card.hidden = false;
-    card.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+    card.scrollTop = 0;
+    positionCard();
+    if (!card.hidden) card.focus({ preventScroll: true });
   }
 
   function reset() {
@@ -136,8 +186,26 @@ export function createExhibitHotspots(viewer) {
       event.preventDefault(); event.stopPropagation(); dismiss(true);
     }
   };
-  section.addEventListener('keydown', onEscape);
-  viewer.addEventListener('keydown', onEscape);
+  document.addEventListener('keydown', onEscape);
+  document.addEventListener('pointerdown', event => {
+    if (selected === -1 || !(event.target instanceof Element)) return;
+    if (card.contains(event.target) || event.target.closest('.exhibit-hotspot, .exhibit-note-choice')) return;
+    dismiss();
+  });
+  viewer.addEventListener('camera-change', schedulePosition);
+  window.addEventListener('resize', schedulePosition);
+  window.addEventListener('scroll', schedulePosition, { capture: true, passive: true });
+  const resizeObserver = new ResizeObserver(schedulePosition);
+  resizeObserver.observe(viewer);
+  resizeObserver.observe(card);
+  window.addEventListener('message', event => {
+    if (parent === window || event.source !== parent || event.data?.type !== 'pech-ar:viewport') return;
+    try { if (event.origin !== new URL(document.referrer).origin) return; } catch { return; }
+    const { start, end } = event.data;
+    if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end <= start) return;
+    embeddedViewport = { start, end };
+    schedulePosition();
+  });
 
   return {
     reset,
