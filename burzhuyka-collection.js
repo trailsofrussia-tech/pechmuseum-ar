@@ -42,12 +42,12 @@ const UGOL_PECHNIKA_COLLECTION = [
 ];
 
 export const BELAYA_DOLLS = [
-  { id: 'folk-fabric', title: 'Тряпичная кукла', model: '/assets/belaya-collection/belaya-folk-fabric-v2.glb', orbit: '0deg 80deg 0.21m', target: '0m .05m 0m', description: 'Тряпичная кукла в красном платке и узорчатом наряде. Вращайте модель, чтобы рассмотреть одежду и перевязки со всех сторон.' },
-  { id: 'layered-fabric', title: 'Кукла в многослойном наряде', model: '/assets/belaya-collection/belaya-layered-fabric-v2.glb', orbit: '0deg 80deg 0.21m', target: '0m .05m 0m', description: 'Выбранная модель куклы в многослойном тканевом наряде. Вращайте её, чтобы рассмотреть одежду со всех сторон.' },
-  { id: 'kerchief', title: 'Кукла в платке', model: '/assets/belaya-collection/belaya-kerchief-v2.glb', orbit: '0deg 80deg 0.21m', target: '0m .05m 0m', description: 'Кукла в красном платке, с тканевым узелком в руках. Приблизьте модель, чтобы рассмотреть узоры ткани и плетёный пояс.' },
-  { id: 'straw', title: 'Соломенная кукла', model: '/assets/belaya-collection/belaya-straw-v2.glb', orbit: '0deg 80deg 0.21m', target: '0m .05m 0m', description: 'Соломенная кукла в предоставленной 3D-модели. Приблизьте изображение, чтобы рассмотреть пучки волокон и перевязки.' },
-  { id: 'many-hands', title: 'Многорукая соломенная кукла', model: '/assets/belaya-collection/belaya-many-hands-v2.glb', orbit: '0deg 80deg 0.21m', target: '0m .05m 0m', description: 'Соломенная кукла с несколькими парами рук, красными перевязками и тканевыми деталями наряда. Рассмотрите расположение рук с разных сторон.' },
-  { id: 'yarn', title: 'Пара кукол из пряжи', model: '/assets/belaya-collection/belaya-yarn-v2.glb', orbit: '0deg 80deg 0.3m', target: '0m .05m 0m', description: 'Красная и белая куклы из пряжи в одной модели. Вращайте пару, чтобы рассмотреть нити и перевязки.' },
+  {"id": "folk-fabric", "title": "Кукла-закрутка", "model": "/assets/belaya-collection/belaya-folk-fabric-v2.glb", "orbit": "0deg 80deg 0.21m", "target": "0m .05m 0m", "description": "Кукла-закрутка — лоскутная игровая кукла, которую мастерили из кусочков ткани. Для её создания лоскутки закручивали вокруг ложки или свёртка мешковины, постепенно придавая заготовке очертания человеческой фигурки. Сам способ изготовления дал кукле название. Из простых материалов, которые находились под рукой, получалась игрушка для детских забав и разыгрывания сцен из повседневной жизни."},
+  {"id": "layered-fabric", "title": "Северная берегиня", "model": "/assets/belaya-collection/belaya-layered-fabric-v2.glb", "orbit": "0deg 80deg 0.21m", "target": "0m .05m 0m", "description": "Северная берегиня — лоскутная обрядовая кукла, которую использовали как оберег в традициях северных народов. Её изготавливали из кусочков ткани и связывали с представлениями о защите дома и семьи. Создавая берегиню, люди выражали пожелания благополучия близким и надежду уберечь их от бед. В этой кукле отражалась вера в охранительную силу предмета, сделанного с добрыми намерениями."},
+  {"id": "kerchief", "title": "Крупеничка, или зернушка", "model": "/assets/belaya-collection/belaya-kerchief-v2.glb", "orbit": "0deg 80deg 0.21m", "target": "0m .05m 0m", "description": "Крупеничка, или зернушка, — кукла из мешковины, наполненная зерном. Она служила детям помощницей в приготовлении каши, когда взрослые уходили работать в поле. Количество зерна внутри куклы подсказывало, сколько крупы нужно насыпать в чугунок, а сама фигурка помогала отмерить воду: её следовало налить до уровня пояска, чтобы готовая каша поднялась «по маковку». Так кукла становилась своеобразной меркой для приготовления еды."},
+  {"id": "straw", "title": "Стригушка", "model": "/assets/belaya-collection/belaya-straw-v2.glb", "orbit": "0deg 80deg 0.21m", "target": "0m .05m 0m", "description": "Стригушка — соломенная игровая кукла, названная по способу обработки её юбки. Завершая работу, мастер подстригал нижний край соломы по прямой линии, чтобы фигурка могла стоять на ровной поверхности. Если поставить стригушку на стол и постукивать по столешнице рукой, кукла начинает подпрыгивать и «танцевать». Так обычная соломенная игрушка превращалась в участницу весёлого представления."},
+  {"id": "many-hands", "title": "Десятиручка", "model": "/assets/belaya-collection/belaya-many-hands-v2.glb", "orbit": "0deg 80deg 0.21m", "target": "0m .05m 0m", "description": "Десятиручка — кукла из лыка и нитей, которую дарили женщине на свадьбу с пожеланием всё успевать по хозяйству. Её десять рук символизировали помощь в многочисленных домашних делах. В таком подарке заключалось пожелание молодой хозяйке сил, ловкости и умения справляться с повседневными заботами, поддерживать порядок и создавать уют в доме."},
+  {"id": "yarn", "title": "Мартиничка", "model": "/assets/belaya-collection/belaya-yarn-v2.glb", "orbit": "0deg 80deg 0.3m", "target": "0m .05m 0m", "description": "Мартиничка — нитяная кукла, которую делали для зазывания весны. В ней соединяли белые и красные нити, отражавшие смену времён года: белый цвет символизировал зиму, холод и снег, а красный — весну, тепло и солнечный свет. Изготавливая такую куклу, люди прощались с зимними холодами и выражали надежду на скорое пробуждение природы."},
 ].map(model => ({ ...model, heightCM: 10, scaleStatus: 'estimated', scaleNote: '' }));
 
 const collections = {
@@ -75,6 +75,19 @@ export function getCollectionModel(zone, id) {
 }
 
 export function createCollectionChoosers(onChange, zones = Object.keys(collections)) {
+  const description = document.createElement('section');
+  description.className = 'doll-description';
+  description.hidden = true;
+  description.setAttribute('aria-labelledby', 'doll-description-title');
+  const descriptionLabel = document.createElement('p');
+  descriptionLabel.className = 'doll-description-label';
+  descriptionLabel.textContent = 'Описание сцены';
+  const descriptionTitle = document.createElement('h2');
+  descriptionTitle.id = 'doll-description-title';
+  const descriptionText = document.createElement('p');
+  descriptionText.className = 'doll-description-text';
+  description.append(descriptionLabel, descriptionTitle, descriptionText);
+  document.querySelector('#experience').after(description);
   const choosers = zones.map(zone => {
     const collection = collections[zone];
     const section = document.createElement('section');
@@ -108,6 +121,11 @@ export function createCollectionChoosers(onChange, zones = Object.keys(collectio
 
   return {
     sync(zone, model) {
+      description.hidden = zone !== 'belaya' || !model;
+      if (!description.hidden) {
+        descriptionTitle.textContent = model.title;
+        descriptionText.textContent = model.description.split(' — ').slice(1).join(' — ') || model.description;
+      }
       for (const chooser of choosers) {
         chooser.section.hidden = chooser.zone !== zone;
         if (chooser.section.hidden) continue;
