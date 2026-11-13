@@ -14,7 +14,7 @@ for name in ('app.js', 'burzhuyka-collection.js', 'exhibit-hotspots.js', 'zones.
 for zone in ('burzhuyka', 'ugol-pechnika', 'belaya'):
     collection = site / 'assets' / f'{zone}-collection'
     collection.mkdir(parents=True, exist_ok=True)
-    for model in Path('.').glob(f'{zone}-*-v1.glb'):
+    for model in Path('.').glob(f'{zone}-*-v*.glb'):
         shutil.copyfile(model, collection / model.name)
 app = site / 'app.js'
 code = app.read_text()

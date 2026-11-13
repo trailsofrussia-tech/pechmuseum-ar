@@ -42,12 +42,13 @@ const UGOL_PECHNIKA_COLLECTION = [
 ];
 
 export const BELAYA_DOLLS = [
-  { id: 'folk-fabric', title: 'Тряпичная кукла', model: '/assets/belaya-collection/belaya-folk-fabric-v1.glb', orbit: '0deg 80deg 4m', target: '0m 0m 0m', description: 'Тряпичная кукла в красном платке и узорчатом наряде. Вращайте модель, чтобы рассмотреть одежду и перевязки со всех сторон.' },
-  { id: 'layered-fabric', title: 'Кукла в многослойном наряде', model: '/assets/belaya-collection/belaya-layered-fabric-v1.glb', orbit: '0deg 80deg 4m', target: '0m 0m 0m', description: 'Выбранная модель куклы в многослойном тканевом наряде. Вращайте её, чтобы рассмотреть одежду со всех сторон.' },
-  { id: 'kerchief', title: 'Кукла в платке', model: '/assets/belaya-collection/belaya-kerchief-v1.glb', orbit: '0deg 80deg 4m', target: '0m 0m 0m', description: 'Кукла в красном платке, с тканевым узелком в руках. Приблизьте модель, чтобы рассмотреть узоры ткани и плетёный пояс.' },
-  { id: 'straw', title: 'Соломенная кукла', model: '/assets/belaya-collection/belaya-straw-v1.glb', orbit: '0deg 80deg 4m', target: '0m 0m 0m', description: 'Соломенная кукла в предоставленной 3D-модели. Приблизьте изображение, чтобы рассмотреть пучки волокон и перевязки.' },
-  { id: 'many-hands', title: 'Многорукая соломенная кукла', model: '/assets/belaya-collection/belaya-many-hands-v1.glb', orbit: '0deg 80deg 4m', target: '0m 0m 0m', description: 'Соломенная кукла с несколькими парами рук, красными перевязками и тканевыми деталями наряда. Рассмотрите расположение рук с разных сторон.' },
-];
+  { id: 'folk-fabric', title: 'Тряпичная кукла', model: '/assets/belaya-collection/belaya-folk-fabric-v2.glb', orbit: '0deg 80deg 0.21m', target: '0m .05m 0m', description: 'Тряпичная кукла в красном платке и узорчатом наряде. Вращайте модель, чтобы рассмотреть одежду и перевязки со всех сторон.' },
+  { id: 'layered-fabric', title: 'Кукла в многослойном наряде', model: '/assets/belaya-collection/belaya-layered-fabric-v2.glb', orbit: '0deg 80deg 0.21m', target: '0m .05m 0m', description: 'Выбранная модель куклы в многослойном тканевом наряде. Вращайте её, чтобы рассмотреть одежду со всех сторон.' },
+  { id: 'kerchief', title: 'Кукла в платке', model: '/assets/belaya-collection/belaya-kerchief-v2.glb', orbit: '0deg 80deg 0.21m', target: '0m .05m 0m', description: 'Кукла в красном платке, с тканевым узелком в руках. Приблизьте модель, чтобы рассмотреть узоры ткани и плетёный пояс.' },
+  { id: 'straw', title: 'Соломенная кукла', model: '/assets/belaya-collection/belaya-straw-v2.glb', orbit: '0deg 80deg 0.21m', target: '0m .05m 0m', description: 'Соломенная кукла в предоставленной 3D-модели. Приблизьте изображение, чтобы рассмотреть пучки волокон и перевязки.' },
+  { id: 'many-hands', title: 'Многорукая соломенная кукла', model: '/assets/belaya-collection/belaya-many-hands-v2.glb', orbit: '0deg 80deg 0.21m', target: '0m .05m 0m', description: 'Соломенная кукла с несколькими парами рук, красными перевязками и тканевыми деталями наряда. Рассмотрите расположение рук с разных сторон.' },
+  { id: 'yarn', title: 'Пара кукол из пряжи', model: '/assets/belaya-collection/belaya-yarn-v2.glb', orbit: '0deg 80deg 0.3m', target: '0m .05m 0m', description: 'Красная и белая куклы из пряжи в одной модели. Вращайте пару, чтобы рассмотреть нити и перевязки.' },
+].map(model => ({ ...model, heightCM: 10, scaleStatus: 'estimated', scaleNote: '' }));
 
 const collections = {
   belaya: {
