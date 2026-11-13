@@ -343,6 +343,24 @@ const EXHIBITS = {
 };
 
 export function createExhibitHotspots(viewer) {
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'viewer-points-toggle';
+  toggle.hidden = true;
+  toggle.setAttribute('aria-controls', 'viewer');
+  viewer.closest('.viewer-panel').append(toggle);
+  let pointsVisible = true;
+  function syncVisibility() {
+    for (const pin of pins) pin.hidden = !pointsVisible;
+    toggle.hidden = pins.length === 0;
+    toggle.textContent = pointsVisible ? 'Скрыть кнопки' : 'Показать кнопки';
+    toggle.setAttribute('aria-pressed', String(!pointsVisible));
+  }
+  toggle.addEventListener('click', () => {
+    pointsVisible = !pointsVisible;
+    dismiss();
+    syncVisibility();
+  });
   const card = document.createElement('div');
   card.id = 'exhibit-note-card';
   card.className = 'exhibit-note-card';
@@ -448,6 +466,7 @@ export function createExhibitHotspots(viewer) {
     dismiss();
     for (const pin of pins) pin.remove();
     pins = []; entries = []; returnFocus = null;
+    toggle.hidden = true;
     content.replaceChildren();
   }
 
@@ -492,7 +511,10 @@ export function createExhibitHotspots(viewer) {
         pin.dataset.position = item.position;
         pin.dataset.normal = item.normal;
         pin.dataset.visibilityAttribute = 'facing';
-        pin.textContent = String(index + 1).padStart(2, '0');
+        const label = document.createElement('span');
+        label.className = 'hotspot-label';
+        label.textContent = String(index + 1).padStart(2, '0');
+        pin.append(label);
         pin.setAttribute('aria-label', 'Точка ' + (index + 1) + ': ' + item.title);
         pin.setAttribute('aria-controls', card.id);
         pin.setAttribute('aria-expanded', 'false');
@@ -500,6 +522,7 @@ export function createExhibitHotspots(viewer) {
         entries.push({ item, pin }); pins.push(pin);
         viewer.append(pin);
       }
+      syncVisibility();
     },
   };
 }

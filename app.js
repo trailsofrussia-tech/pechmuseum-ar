@@ -10,6 +10,42 @@ const viewer=$('viewer'),reduce=matchMedia('(prefers-reduced-motion: reduce)');
 let current='kamenka',evidenceType='confirmed',raf=0,toastTimer=0,loadTimer=0,tutorialStarted=0,modelReady=false,viewerDefinition,activeModel=null,loadSequence=0;
 const exhibitHotspots=createExhibitHotspots(viewer);
 const collectionChooser=createCollectionChoosers((zone,model)=>selectScene(zone,true,model));
+const periodBadge=document.createElement('div');
+periodBadge.className='viewer-period';
+viewer.closest('.viewer-panel').append(periodBadge);
+const PERIODS={
+ 'kamenka':['Тема сцены','Каменный век'],
+ 'glinobitnaya':['По аналогам','X–XII вв.'],
+ 'kurnaya':['По аналогам','XIX век'],
+ 'gollandka':['Тема сцены','XIX век'],
+ 'belaya':['Период темы','XVIII век'],
+ 'burzhuyka':['Период темы','Первая пол. XX в.'],
+ 'ugol-pechnika':['По аналогам','Первая пол. XX в.'],
+ 'ugol-pechnika/damper':['Бытование типа','XIX — первая пол. XX в.'],
+ 'ugol-pechnika/wooden-mold':['По аналогам','Начало XX в.'],
+ 'ugol-pechnika/metal-stamp':['Техника клеймения','Конец XIX — нач. XX в.'],
+ 'burzhuyka/rocket':['Бытование типа','С 1980-х гг.']
+};
+function syncPeriod(zone,model){
+ const key=zone+'/'+(model?.id||'default');
+ const [kind,date]=PERIODS[key]||(zone==='burzhuyka'&&model?.id!=='interior'?['Вариация','Современный быт']:PERIODS[zone]);
+ const caption=document.createElement('small'),value=document.createElement('span');
+ caption.textContent=kind;value.textContent=date;periodBadge.replaceChildren(caption,value);
+ periodBadge.setAttribute('aria-label',kind+': '+date);
+}
+const audioPreview=document.createElement('div');
+audioPreview.className='audio-preview';
+const audioButton=document.createElement('button');
+audioButton.type='button';audioButton.className='button secondary audio-preview-button';
+audioButton.setAttribute('aria-disabled','true');audioButton.setAttribute('aria-describedby','audio-preview-status');
+const audioIcon=document.createElementNS('http://www.w3.org/2000/svg','svg');
+audioIcon.setAttribute('viewBox','0 0 24 24');audioIcon.setAttribute('aria-hidden','true');
+const audioPath=document.createElementNS('http://www.w3.org/2000/svg','path');audioPath.setAttribute('d','m9 5 11 7-11 7V5Z');audioIcon.append(audioPath);
+audioButton.append(audioIcon,document.createTextNode('Прослушать фрагмент записи'));
+const audioStatus=document.createElement('p');audioStatus.id='audio-preview-status';audioStatus.setAttribute('role','status');audioStatus.textContent='Аудиофрагмент готовится';
+audioButton.addEventListener('click',()=>toast('Аудиофрагмент готовится. Запись появится здесь.'));
+audioPreview.append(audioButton,audioStatus);$('experience').append(audioPreview);
+let zoneMenuButton,zoneMenu;
 const getZone=id=>ZONES.find(z=>z.id===id),zonePath=id=>new URL(id+'/',APP_BASE).pathname;
 function routeZone(){const q=new URL(location.href).searchParams.get('scene'),p=location.pathname.slice(APP_BASE.pathname.length).split('/').filter(Boolean)[0];return getZone(q)?q:getZone(p)?p:'kamenka';}
 function showDialog(id){$(id).showModal();}
@@ -18,8 +54,22 @@ function setupNavigation(){
  document.querySelectorAll('a.brand').forEach(a=>a.href=APP_BASE.href);
  $('zone-links').replaceChildren(...ZONES.map(z=>{const a=document.createElement('a'),n=document.createElement('span');a.href=zonePath(z.id);a.dataset.scene=z.id;n.textContent=z.number;a.append(n,document.createTextNode(z.title));a.addEventListener('click',e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();selectScene(z.id);$('main').scrollIntoView({behavior:'instant'});});return a;}));
  $('zone-select').replaceChildren(...ZONES.map(z=>{const o=document.createElement('option');o.value=z.id;o.textContent=`${z.number} · ${z.title}`;return o;}));$('zone-select').addEventListener('change',e=>selectScene(e.target.value));
+ // Retain the native select as the routing/embedding contract, with a themed chooser for visitors.
+ $('zone-select').hidden=true;
+ const label=$('zone-select').closest('.zone-mobile');label.removeAttribute('for');
+ zoneMenuButton=document.createElement('button');zoneMenuButton.type='button';zoneMenuButton.id='zone-menu-trigger';zoneMenuButton.className='zone-menu-trigger';zoneMenuButton.setAttribute('aria-haspopup','dialog');zoneMenuButton.setAttribute('aria-expanded','false');zoneMenuButton.setAttribute('aria-controls','zone-menu');label.append(zoneMenuButton);
+ zoneMenu=document.createElement('dialog');zoneMenu.id='zone-menu';zoneMenu.className='zone-menu';zoneMenu.setAttribute('aria-labelledby','zone-menu-title');
+ const head=document.createElement('div');head.className='zone-menu-head';const title=document.createElement('h2');title.id='zone-menu-title';title.textContent='Раздел выставки';
+ const close=document.createElement('button');close.type='button';close.className='icon-button';close.textContent='×';close.setAttribute('aria-label','Закрыть выбор раздела');close.addEventListener('click',()=>zoneMenu.close());head.append(title,close);
+ const list=document.createElement('nav');list.className='zone-menu-options';list.setAttribute('aria-label','Разделы выставки');
+ const options=ZONES.map(z=>{const b=document.createElement('button');b.type='button';b.dataset.scene=z.id;const n=document.createElement('span');n.textContent=z.number;b.append(n,document.createTextNode(z.title));b.addEventListener('click',()=>{zoneMenu.close();selectScene(z.id);});list.append(b);return b;});
+ list.addEventListener('keydown',e=>{const i=options.indexOf(document.activeElement);if(i<0)return;const next=e.key==='ArrowDown'?(i+1)%options.length:e.key==='ArrowUp'?(i+options.length-1)%options.length:e.key==='Home'?0:e.key==='End'?options.length-1:null;if(next!==null){e.preventDefault();options[next].focus();}});
+ zoneMenu.append(head,list);document.body.append(zoneMenu);
+ zoneMenuButton.addEventListener('click',()=>{zoneMenu.showModal();zoneMenuButton.setAttribute('aria-expanded','true');options.find(b=>b.dataset.scene===current)?.focus({preventScroll:true});});
+ zoneMenu.addEventListener('close',()=>{zoneMenuButton.setAttribute('aria-expanded','false');zoneMenuButton.focus({preventScroll:true});});
+ zoneMenu.addEventListener('click',e=>{if(e.target===zoneMenu){const r=zoneMenu.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)zoneMenu.close();}});
 }
-function syncNavigation(z){document.querySelectorAll('[data-scene]').forEach(a=>{if(a.dataset.scene===z.id)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});$('zone-select').value=z.id;for(const a of document.querySelectorAll('a[href*="#"]')){const hash=new URL(a.href,location.href).hash;if(hash)a.href=location.pathname+location.search+hash;}document.title=z.title+' · Живая печь';}
+function syncNavigation(z){document.querySelectorAll('[data-scene]').forEach(a=>{if(a.dataset.scene===z.id)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});$('zone-select').value=z.id;zoneMenuButton.textContent=z.number+' · '+z.title;zoneMenuButton.setAttribute('aria-label','Выбрать раздел: '+z.title);for(const a of document.querySelectorAll('a[href*="#"]')){const hash=new URL(a.href,location.href).hash;if(hash)a.href=location.pathname+location.search+hash;}document.title=z.title+' · Живая печь';}
 function renderEvidence(){const s=SCENES[current];if(!s?.evidence)return;$('evidence-content').replaceChildren(...s.evidence[evidenceType].map(([title,body],i)=>{const item=document.createElement('div'),n=document.createElement('span'),c=document.createElement('div'),h=document.createElement('h3'),p=document.createElement('p');item.className='evidence-item';n.textContent=String(i+1).padStart(2,'0');h.textContent=title;p.textContent=body;c.append(h,p);item.append(n,c);return item;}));document.querySelectorAll('[data-evidence]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.evidence===evidenceType)));}
 function openPhoto(src,caption){$('photo-full').src=src;$('photo-full').alt=caption;$('photo-caption').textContent=caption;showDialog('photo-dialog');}
 function stopAnimation(){cancelAnimationFrame(raf);$('smoke-diagram').hidden=true;$('smoke-diagram').classList.remove('running');if(typeof viewer.pause==='function'){viewer.pause();viewer.currentTime=0;}$('timeline').hidden=true;$('progress').value=0;$('play').setAttribute('aria-pressed','false');$('play-label').textContent=reduce.matches?'Показать схему без движения':'Показать, как работает';}
@@ -27,7 +77,7 @@ async function selectScene(id,writeURL=true,requestedModel){
  const zone=getZone(id)||ZONES[0];id=zone.id;const sequence=++loadSequence;stopAnimation();clearTimeout(loadTimer);current=id;modelReady=false;exhibitHotspots.reset();
  const variant=getCollectionModel(id,requestedModel??(!writeURL?new URL(location.href).searchParams.get('model'):null));
  if(writeURL){const url=new URL(zonePath(id),location.origin);if(variant&&variant.id!=='interior')url.searchParams.set('model',variant.id);history.pushState({scene:id,model:variant?.id},'',url.pathname+url.search);}
- syncNavigation(zone);collectionChooser.sync(id,variant);
+ syncNavigation(zone);collectionChooser.sync(id,variant);syncPeriod(id,variant);
  const s=SCENES[id],hasModel=Boolean(s?.model);$('empty-zone').hidden=hasModel;for(const key of ['experience','evidence','sources-nav','route-banner'])$(key).hidden=!hasModel;
  const next=ZONES[(ZONES.findIndex(z=>z.id===id)+1)%ZONES.length];$('next-scene').textContent='Далее: '+next.title;
  if(!hasModel){activeModel=null;viewer.removeAttribute('src');delete viewer.dataset.collectionModel;delete viewer.dataset.modelTitle;delete viewer.dataset.modelDescription;delete viewer.dataset.scaleNote;$('empty-zone-index').textContent=zone.number+' / Раздел выставки';$('empty-zone-title').textContent=zone.title;window.dispatchEvent(new Event('pech-model-change'));return;}

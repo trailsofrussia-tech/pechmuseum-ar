@@ -201,17 +201,20 @@ button:focus-visible, a:focus-visible, .zone-mobile select:focus-visible { outli
 @media(max-width:760px) { .doll-description { margin-top:24px; padding:25px 22px 28px; } .doll-description-text { font-size:15px; line-height:1.75; } }
 @media(max-width:760px) { .collection-switcher { grid-template-columns:minmax(0,1fr); gap:8px; padding-bottom:18px; } .collection-scale-note { grid-column:1; font-size:11px; } }
 
-/* Numbered annotations follow the model; the same controls stay below it. */
+/* Small visual pins retain a 44px touch target. */
 .exhibit-hotspot {
   display:grid; place-items:center; width:44px; height:44px; padding:0;
-  border:1px solid var(--sepia-bright); border-radius:50%;
-  background:#202124ed; color:var(--sepia-bright);
-  box-shadow:0 0 0 4px #1b1d2166; font:600 13px/1 var(--mono);
+  border:0; border-radius:50%;
+  background:transparent; color:var(--sepia-bright);
+  box-shadow:none; font:600 11px/1 var(--mono);
   touch-action:manipulation;
 }
-.exhibit-hotspot::before { content:''; position:absolute; inset:5px; border:1px solid #cfaf8755; border-radius:50%; pointer-events:none; }
-.exhibit-hotspot:not([data-facing]) { opacity:.3; }
-.exhibit-hotspot[aria-expanded=true] { background:var(--sepia-bright); color:var(--canvas); opacity:1; }
+.exhibit-hotspot::before { content:''; position:absolute; inset:8px; border:1px solid #e4c7a399; background:#20212473; border-radius:50%; pointer-events:none; }
+.hotspot-label { position:relative; pointer-events:none; }
+.exhibit-hotspot:not([data-facing]) { opacity:.35; }
+.exhibit-hotspot[aria-expanded=true] { color:var(--canvas); opacity:1; }
+.exhibit-hotspot[aria-expanded=true]::before { background:var(--sepia-bright); border-color:var(--sepia-bright); }
+.exhibit-hotspot[hidden],.viewer-points-toggle[hidden] { display:none!important; }
 .experience .primary-actions { order:2; }
 .exhibit-note-card { position:fixed; z-index:40; box-sizing:border-box; margin:0; padding:18px 20px 20px; overflow:auto; overscroll-behavior:contain; border:1px solid var(--sepia-line); border-left:3px solid var(--sepia-bright); border-radius:0; background:#202124df; backdrop-filter:blur(9px); -webkit-backdrop-filter:blur(9px); box-shadow:0 12px 36px #0005; }
 .exhibit-note-card:focus-visible { outline:2px solid var(--sepia-bright); outline-offset:2px; }
@@ -224,10 +227,33 @@ button:focus-visible, a:focus-visible, .zone-mobile select:focus-visible { outli
 @keyframes exhibit-note-reveal { from { opacity:0; } to { opacity:1; } }
 @media(prefers-reduced-motion:reduce) { .exhibit-note-card:not([hidden]) { animation:none; } }
 @media (hover:hover) and (pointer:fine) {
-  .exhibit-hotspot:hover, .exhibit-note-close:hover { background:var(--sepia-bright); color:var(--canvas); }
+  .exhibit-hotspot:hover { background:transparent; color:var(--canvas); }
+  .exhibit-hotspot:hover::before, .exhibit-note-close:hover { background:var(--sepia-bright); color:var(--canvas); }
   .exhibit-note-source:hover { color:var(--text); }
 }
+
+/* Corner tools share the drawing field without covering it with a full-width bar. */
+.viewer-points-toggle { position:absolute; z-index:3; bottom:16px; left:18px; max-width:44%; min-height:44px; padding:8px 10px; border:1px solid var(--sepia-line); border-radius:0; background:#202124a6; color:var(--sepia-bright); font:11px/1.4 var(--mono); touch-action:manipulation; }
+.viewer-period { position:absolute; z-index:2; bottom:19px; right:18px; max-width:45%; text-align:right; color:var(--sepia-bright); font:11px/1.5 var(--mono); pointer-events:none; text-shadow:0 1px 3px #000; }
+.viewer-period small { display:block; color:var(--muted); font-size:9px; letter-spacing:.04em; }
+.audio-preview { order:3; display:flex; flex-direction:column; align-items:flex-end; gap:7px; }
+.audio-preview-button { display:flex; align-items:center; justify-content:center; gap:10px; min-height:52px; }
+.audio-preview-button svg { width:20px; height:20px; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.5; }
+.audio-preview p { margin:0; color:var(--muted); font:10px/1.6 var(--mono); }
+.zone-menu-trigger { position:relative; display:flex; width:100%; min-height:52px; margin-top:8px; padding:13px 38px 13px 16px; text-align:left; border:1px solid var(--sepia-line); border-radius:0; color:var(--text); background:#232326; font:15px/1.5 var(--mono); letter-spacing:0; touch-action:manipulation; }
+.zone-menu { width:min(440px,calc(100vw - 28px)); box-sizing:border-box; max-height:88dvh; padding:20px; overflow:auto; overscroll-behavior:contain; background-color:#202124; background-image:linear-gradient(#cfaf8708 1px,transparent 1px),linear-gradient(90deg,#cfaf8708 1px,transparent 1px); background-size:24px 24px; }
+.zone-menu-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+.zone-menu-head h2 { margin:0; color:var(--sepia-bright); font:12px/1.5 var(--mono); letter-spacing:.05em; }
+.zone-menu-head button { font:26px/1 var(--mono); }
+.zone-menu-options { display:grid; gap:7px; }
+.zone-menu-options button { width:100%; min-height:48px; display:flex; align-items:center; gap:16px; padding:12px; border:1px solid #99816477; border-radius:0; background:#cfaf8705; color:var(--text); font:13px/1.5 var(--mono); text-align:left; touch-action:manipulation; }
+.zone-menu-options button span { color:var(--sepia); }
+.zone-menu-options button[aria-current=page] { border-color:var(--sepia-bright); background:#cfaf8720; box-shadow:inset 3px 0 var(--sepia-bright); }
+@media(hover:hover) and (pointer:fine) { .viewer-points-toggle:hover,.zone-menu-trigger:hover,.zone-menu-options button:hover { background:#cfaf8722; border-color:var(--sepia-bright); } }
+@media(max-width:760px) { .audio-preview { align-items:stretch; } .audio-preview-button { width:100%; padding-inline:12px; font-size:11px; } .audio-preview p { text-align:right; } }
 @media(max-width:760px) {
   .exhibit-note-card { padding:16px 16px 18px; }
   .exhibit-note-card h2 { font-size:13px; }
 }
+
+.zone-menu-trigger::after { content:"⌄"; position:absolute; right:16px; top:50%; transform:translateY(-50%); color:var(--sepia); }
