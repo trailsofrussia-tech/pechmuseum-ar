@@ -8,7 +8,7 @@ site = Path(sys.argv[1])
 revision = sys.argv[2]
 shutil.copyfile('graphite.css', site / 'graphite.css')
 shutil.copyfile('embed-bridge.js', site / 'embed-bridge.js')
-for name in ('app.js', 'burzhuyka-collection.js', 'exhibit-hotspots.js', 'exhibit-audio.js', 'glinobitnaya-collection.js', 'zones.js', 'scene-data.js'):
+for name in ('app.js', 'burzhuyka-collection.js', 'exhibit-hotspots.js', 'exhibit-audio.js', 'glinobitnaya-collection.js', 'model-collection.js', 'food-collection.js', 'zones.js', 'scene-data.js'):
     if Path(name).exists():
         shutil.copyfile(name, site / name)
 audio = site / 'assets' / 'audio'
@@ -16,7 +16,7 @@ audio.mkdir(parents=True, exist_ok=True)
 for pattern in ('kamenka-audioguide-v*.m4a', 'archive-fire-audioguide-v*.m4a'):
     for recording in Path('.').glob(pattern):
         shutil.copyfile(recording, audio / recording.name)
-for zone in ('burzhuyka', 'ugol-pechnika', 'belaya', 'glinobitnaya'):
+for zone in ('burzhuyka', 'ugol-pechnika', 'belaya', 'glinobitnaya', 'food'):
     collection = site / 'assets' / f'{zone}-collection'
     collection.mkdir(parents=True, exist_ok=True)
     for model in Path('.').glob(f'{zone}-*-v*.glb'):
@@ -25,10 +25,15 @@ app = site / 'app.js'
 code = app.read_text()
 code = re.sub(r"(from './burzhuyka-collection\.js)(?:\?[^']*)?(')", rf'\1?v={revision}\2', code)
 code = re.sub(r"(from './exhibit-hotspots\.js)(?:\?[^']*)?(')", rf'\1?v={revision}\2', code)
-for module in ('zones', 'scene-data', 'exhibit-audio', 'glinobitnaya-collection'):
+for module in ('zones', 'scene-data', 'exhibit-audio', 'glinobitnaya-collection', 'model-collection', 'food-collection'):
     code = re.sub(r"(from './" + module + r"\.js)(?:\?[^']*)?(')", rf'\1?v={revision}\2', code)
 code = code.replace("$('viewer-badge').textContent=s.badge;", "$('viewer-badge').textContent=id==='kamenka'?'Жилище пещерного человека':zone.title;")
 app.write_text(code)
+glina = site / 'glinobitnaya-collection.js'
+if glina.exists():
+    code = glina.read_text()
+    code = re.sub(r"(from './model-collection\.js)(?:\?[^']*)?(')", rf'\1?v={revision}\2', code)
+    glina.write_text(code)
 archive = site / 'archive-fire'
 archive.mkdir(parents=True, exist_ok=True)
 archive.joinpath('index.html').write_text(site.joinpath('kamenka/index.html').read_text().replace('<title>Каменка · Живая печь</title>', '<title>Архив огня · Живая печь</title>'))

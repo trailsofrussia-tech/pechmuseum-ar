@@ -7,12 +7,15 @@ import {createCollectionChoosers,getCollectionModel} from './burzhuyka-collectio
 import {createExhibitHotspots} from './exhibit-hotspots.js?v=2594e5b1bca294a947e2329320e366d80098ae4e';
 import {createExhibitAudio} from './exhibit-audio.js?v=2594e5b1bca294a947e2329320e366d80098ae4e';
 import {createGlinobitnayaCollection} from './glinobitnaya-collection.js?v=glina-20261114';
+import {createModelCollection} from './model-collection.js?v=food-20261114';
+import {createFoodCollection} from './food-collection.js?v=food-20261114';
 const $=id=>document.getElementById(id),ref=file=>localURL('assets/references/'+file);
 const viewer=$('viewer'),reduce=matchMedia('(prefers-reduced-motion: reduce)');
 let current='kamenka',evidenceType='confirmed',raf=0,toastTimer=0,loadTimer=0,tutorialStarted=0,modelReady=false,viewerDefinition,activeModel=null,loadSequence=0;
 const exhibitHotspots=createExhibitHotspots(viewer);
 const collectionChooser=createCollectionChoosers((zone,model)=>selectScene(zone,true,model));
-const glinobitnayaCollection=createGlinobitnayaCollection({localURL,showFallback:()=>showDialog('ar-fallback'),createHotspots:createExhibitHotspots});
+const glinobitnayaCollection=createGlinobitnayaCollection({localURL,showFallback:()=>showDialog('ar-fallback'),createHotspots:createExhibitHotspots,createCollection:createModelCollection});
+const foodCollection=createFoodCollection({localURL,showFallback:()=>showDialog('ar-fallback'),createCollection:createModelCollection});
 const periodBadge=document.createElement('div');
 periodBadge.className='viewer-period';
 viewer.closest('.viewer-panel').append(periodBadge);
@@ -73,7 +76,7 @@ async function selectScene(id,writeURL=true,requestedModel){
  const zone=getZone(id)||ZONES[0];id=zone.id;const sequence=++loadSequence;stopAnimation();clearTimeout(loadTimer);current=id;modelReady=false;exhibitHotspots.reset();
  const variant=getCollectionModel(id,requestedModel??(!writeURL?new URL(location.href).searchParams.get('model'):null));
  if(writeURL){const url=new URL(zonePath(id),location.origin);if(variant&&variant.id!=='interior')url.searchParams.set('model',variant.id);history.pushState({scene:id,model:variant?.id},'',url.pathname+url.search);}
- syncNavigation(zone);collectionChooser.sync(id,variant);syncPeriod(id,variant);audioGuide.sync(id);glinobitnayaCollection.sync(id);
+ syncNavigation(zone);collectionChooser.sync(id,variant);syncPeriod(id,variant);audioGuide.sync(id);glinobitnayaCollection.sync(id);foodCollection.sync(id);
  const s=SCENES[id],hasModel=Boolean(s?.model),audioOnly=id==='archive-fire';
  document.body.classList.toggle('archive-mode',audioOnly);
  $('empty-zone').hidden=hasModel||audioOnly;for(const key of ['experience','evidence','sources-nav','route-banner'])$(key).hidden=key==='experience'?!(hasModel||audioOnly):!hasModel;
