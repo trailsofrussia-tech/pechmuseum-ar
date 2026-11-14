@@ -12,7 +12,7 @@ const viewer=$('viewer'),reduce=matchMedia('(prefers-reduced-motion: reduce)');
 let current='kamenka',evidenceType='confirmed',raf=0,toastTimer=0,loadTimer=0,tutorialStarted=0,modelReady=false,viewerDefinition,activeModel=null,loadSequence=0;
 const exhibitHotspots=createExhibitHotspots(viewer);
 const collectionChooser=createCollectionChoosers((zone,model)=>selectScene(zone,true,model));
-const glinobitnayaCollection=createGlinobitnayaCollection({localURL,showFallback:()=>showDialog('ar-fallback')});
+const glinobitnayaCollection=createGlinobitnayaCollection({localURL,showFallback:()=>showDialog('ar-fallback'),createHotspots:createExhibitHotspots});
 const periodBadge=document.createElement('div');
 periodBadge.className='viewer-period';
 viewer.closest('.viewer-panel').append(periodBadge);

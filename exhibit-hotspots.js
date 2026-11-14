@@ -339,15 +339,75 @@ const EXHIBITS = {
       "normal": "-0.000074 -0.000009 1.000000",
       "body": "На наружной модели показаны кирпичные ряды, металлические дверцы и выступы. Сопоставьте их расположение с разрезом слева."
     }
+  ],
+  "glinobitnaya/muroma-ornaments": [
+    {
+      "title": "Верхняя рамка",
+      "body": "Верхняя часть большого украшения имеет овальную рамку с поперечным элементом внутри. Под ней расположен ряд колец, к которым присоединены цепочки.",
+      "position": "-0.265078m 0.450446m -0.001900m",
+      "normal": "0.379371 0.057421 0.923461"
+    },
+    {
+      "title": "Цепочки с подвесками",
+      "body": "Длинные цепочки заканчиваются расширенными плоскими подвесками. Проследите каждую цепочку от верхнего кольца до нижней детали и сравните длину соседних рядов.",
+      "position": "-0.402674m -0.446202m 0.011651m",
+      "normal": "0.298971 0.142579 0.943551"
+    },
+    {
+      "title": "Короткие подвески",
+      "body": "У двух меньших украшений под горизонтальной планкой расположены кольца с короткими плоскими подвесками. Сравните их форму и длину с цепочками большого предмета.",
+      "position": "0.603432m 0.412153m 0.018523m",
+      "normal": "0.234620 0.202574 0.950746"
+    }
+  ],
+  "glinobitnaya/neck-ornament": [
+    {
+      "title": "Кольцевая форма",
+      "body": "Основная часть украшения образует почти замкнутый круг. Отдельный вид слева позволяет рассмотреть его форму без фигуры-манекена.",
+      "position": "-0.521074m 0.494908m 0.127896m",
+      "normal": "0.024126 -0.829281 0.558312"
+    },
+    {
+      "title": "Разомкнутые концы",
+      "body": "На концах кольца видны загнутые участки. Рассмотрите их очертания и промежуток между ними: эта часть отличается от плавного изгиба остального украшения.",
+      "position": "-0.282551m -0.155110m 0.176582m",
+      "normal": "-0.158588 0.508982 0.846042"
+    },
+    {
+      "title": "Расположение на шее",
+      "body": "Справа украшение показано на белом манекене: оно охватывает основание шеи и опускается к верхней части груди. Сопоставьте этот вид с отдельным кольцом слева.",
+      "position": "0.372273m -0.305324m 0.134382m",
+      "normal": "-0.047313 0.501492 0.863867"
+    }
+  ],
+  "glinobitnaya/slavic-figures": [
+    {
+      "title": "Кольцо у ворота",
+      "body": "На левой фигуре круглый элемент расположен у ворота поверх длинного шейного украшения. На белой одежде хорошо видны его контур и соединение с соседними деталями.",
+      "position": "-0.294786m 0.502490m 0.158251m",
+      "normal": "0.036764 0.350619 0.935796"
+    },
+    {
+      "title": "Круглая нагрудная подвеска",
+      "body": "На груди правой фигуры выделяется большой круглый диск. Рядом размещены меньшие элементы: рассмотрите, как различаются форма, размер и положение украшений.",
+      "position": "0.373512m 0.347450m 0.197751m",
+      "normal": "-0.093609 0.155573 0.983379"
+    },
+    {
+      "title": "Украшения на поясе",
+      "body": "На поясе левой фигуры закреплён ряд небольших деталей. От него опускаются короткие подвески и цепочка с более крупным продолговатым элементом.",
+      "position": "-0.210491m 0.109849m 0.192591m",
+      "normal": "0.311297 0.544800 0.778644"
+    }
   ]
 };
 
-export function createExhibitHotspots(viewer) {
+export function createExhibitHotspots(viewer, {idPrefix = 'exhibit-note'} = {}) {
   const toggle = document.createElement('button');
   toggle.type = 'button';
   toggle.className = 'viewer-points-toggle';
   toggle.hidden = true;
-  toggle.setAttribute('aria-controls', 'viewer');
+  toggle.setAttribute('aria-controls', viewer.id);
   viewer.closest('.viewer-panel').append(toggle);
   let pointsVisible = true;
   function syncVisibility() {
@@ -362,14 +422,14 @@ export function createExhibitHotspots(viewer) {
     syncVisibility();
   });
   const card = document.createElement('div');
-  card.id = 'exhibit-note-card';
+  card.id = idPrefix + '-card';
   card.className = 'exhibit-note-card';
   card.hidden = true;
   card.tabIndex = -1;
   card.setAttribute('role', 'dialog');
   card.setAttribute('aria-modal', 'false');
-  card.setAttribute('aria-labelledby', 'exhibit-note-title');
-  card.setAttribute('aria-describedby', 'exhibit-note-body');
+  card.setAttribute('aria-labelledby', idPrefix + '-title');
+  card.setAttribute('aria-describedby', idPrefix + '-body');
   const content = document.createElement('div');
   content.className = 'exhibit-note-content';
   const close = document.createElement('button');
@@ -433,14 +493,15 @@ export function createExhibitHotspots(viewer) {
 
   function open(index, trigger) {
     if (selected === index) { dismiss(); return; }
+    window.dispatchEvent(new CustomEvent('pech-note-open', {detail: {viewerId: viewer.id}}));
     const item = entries[index].item;
     returnFocus = trigger;
     selected = index;
     const title = document.createElement('h2');
-    title.id = 'exhibit-note-title';
+    title.id = idPrefix + '-title';
     title.textContent = String(index + 1).padStart(2, '0') + ' / ' + item.title;
     const body = document.createElement('p');
-    body.id = 'exhibit-note-body';
+    body.id = idPrefix + '-body';
     body.textContent = item.body;
     content.replaceChildren(title, body);
     if (item.source) {
@@ -471,6 +532,9 @@ export function createExhibitHotspots(viewer) {
   }
 
   close.addEventListener('click', () => dismiss(true));
+  window.addEventListener('pech-note-open', event => {
+    if (event.detail?.viewerId !== viewer.id) dismiss();
+  });
   const onEscape = event => {
     if (event.key === 'Escape' && selected !== -1 && !document.querySelector('dialog[open]')) {
       event.preventDefault(); event.stopPropagation(); dismiss(true);

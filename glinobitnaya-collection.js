@@ -4,7 +4,7 @@ const MODELS = [
   {id:'slavic-figures', title:'Фигуры в исторических костюмах'},
 ];
 
-export function createGlinobitnayaCollection({localURL, showFallback}) {
+export function createGlinobitnayaCollection({localURL, showFallback, createHotspots}) {
   const section=document.createElement('section');
   section.className='glinobitnaya-collection';
   section.hidden=true;
@@ -26,6 +26,7 @@ export function createGlinobitnayaCollection({localURL, showFallback}) {
   document.getElementById('experience').after(section);
   const find=id=>section.querySelector('#'+id);
   const viewer=find('glina-viewer'), select=find('glina-model-select'), ar=find('glina-ar'), reset=find('glina-reset');
+  const hotspots=createHotspots(viewer,{idPrefix:'glina-exhibit-note'});
   select.replaceChildren(...MODELS.map((model,i)=>{
     const option=document.createElement('option'); option.value=model.id; option.textContent=String(i+1).padStart(2,'0')+' · '+model.title; return option;
   }));
@@ -38,6 +39,7 @@ export function createGlinobitnayaCollection({localURL, showFallback}) {
   function resetCamera(){viewer.cameraOrbit='0deg 75deg auto';viewer.cameraTarget='auto auto auto';viewer.jumpCameraToGoal?.();}
   async function load(force=false){
     const token=++request;
+    hotspots.reset();
     started=true;
     ready=false; ar.disabled=true; reset.disabled=true; find('glina-error').hidden=true;
     find('glina-load-status').textContent='Загружается: '+selected.title;
@@ -57,6 +59,7 @@ export function createGlinobitnayaCollection({localURL, showFallback}) {
     ready=true;ar.disabled=false;reset.disabled=false;find('glina-error').hidden=true;
     find('glina-load-status').textContent=selected.title+' · 3D-модель загружена';
     resetCamera();
+    hotspots.show('glinobitnaya',selected.id);
   }
   viewer.addEventListener('load',onLoad);
   viewer.addEventListener('progress',event=>{
@@ -65,6 +68,7 @@ export function createGlinobitnayaCollection({localURL, showFallback}) {
   });
   viewer.addEventListener('error',()=>{
     if(!active)return;
+    hotspots.reset();
     ready=false;ar.disabled=true;reset.disabled=true;find('glina-error').hidden=false;
     find('glina-load-status').textContent='Не удалось загрузить: '+selected.title;
   });
@@ -83,6 +87,6 @@ export function createGlinobitnayaCollection({localURL, showFallback}) {
     if(active===next)return;
     active=next;section.hidden=!next;
     if(next){if(visible)load();}
-    else{request++;started=false;ready=false;ar.disabled=true;viewer.src='';viewer.removeAttribute('loaded');}
+    else{request++;started=false;ready=false;ar.disabled=true;hotspots.reset();viewer.src='';viewer.removeAttribute('loaded');}
   }};
 }
