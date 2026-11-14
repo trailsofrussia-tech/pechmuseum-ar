@@ -4,6 +4,7 @@ const MODELS = [
   {id:'muroma-ornaments', title:'Украшения муромы'},
   {id:'neck-ornament', title:'Шейное украшение'},
   {id:'slavic-figures', title:'Фигуры в исторических костюмах'},
+  {id:'clay-oven', title:'Глинобитная печь', orbit:'30deg 65deg auto'},
 ];
 
 export function createGlinobitnayaCollection({createCollection=createModelCollection,...options}) {
